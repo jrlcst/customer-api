@@ -1,0 +1,61 @@
+service:
+  name: customer-api
+  description: API simples de clientes para a POC de quality gates, AI review e revisão de documentação.
+  language: java
+  runtime: java-21
+  framework: quarkus
+  build_tool: maven
+
+docs:
+  readme: README.md
+  relevant_docs:
+    - docs/contexts/customer-api-context.md
+    - docs/contexts/00-architecture-overview.md
+    - docs/flows/01-consulta-de-cliente-por-id.md
+    - docs/flows/02-classificacao-de-status-do-cliente.md
+
+exposes:
+  http:
+    - method: GET
+      path: /v1/customers/{id}
+      description: Retorna dados básicos do cliente por identificador.
+      response_fields:
+        - id
+        - name
+        - document
+        - status
+  messaging: []
+
+depends_on:
+  http: []
+  messaging: []
+
+consumed_by:
+  - service: checkout-api
+    reason: checkout-api usa dados cadastrais do cliente para montar o resumo de checkout.
+    sensitive_fields:
+      - document
+      - status
+
+doc_sensitive_paths:
+  - src/main/java/**/resource/**
+  - src/main/java/**/dto/**
+  - src/main/java/**/service/**
+  - src/main/resources/application*
+  - src/main/docker/**
+  - .claude/**
+  - pom.xml
+  - README.md
+  - docs/**
+
+ai_review:
+  focus:
+    - quebra de contrato HTTP
+    - alteração de campos do response
+    - alteração de status possíveis
+    - impacto em checkout-api
+    - ausência de teste em comportamento alterado
+    - documentação desatualizada
+
+quality:
+  min_new_code_coverage: 80
